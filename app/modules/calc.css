@@ -1,0 +1,5 @@
+/* ===== R&F calculator ===== */
+table.flow th.sel,table.flow td.sel{background:var(--accent-soft)}table.flow th{font-size:11px}
+.dot{display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--surface-2);border:2px solid var(--border-2);cursor:pointer;transition:transform .1s}.dot:hover{transform:scale(1.15)}.dot.on{background:var(--accent);border-color:var(--accent)}.dot.ring{background:transparent;border-style:dashed}.dot.na{opacity:.25;cursor:default}
+.sbx{display:grid;gap:10px}.sbstep{border-left:4px solid var(--accent);padding:4px 10px;background:var(--accent-soft);border-radius:0 8px 8px 0;font-size:13px}.sbstep p{margin:4px 0}
+table.sb th{font-size:10.5px;white-space:normal}.sbbar{display:flex;height:12px;width:160px;background:var(--surface-2);border-radius:6px;overflow:hidden}.sbbar span{display:block;height:100%}
