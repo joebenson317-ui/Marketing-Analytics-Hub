@@ -48,7 +48,12 @@ class Fake(BaseHTTPRequestHandler):
             p = {"id": REF, "ref": REF, "name": b["name"], "organization_slug": "my-org", "region": "us-east-1", "status": "COMING_UP"}
             STATE["projects"].append(p); return self._send(201, p)
         if self.path == f"/v1/projects/{REF}/database/query":
-            STATE["queries"].append(b["query"]); return self._send(201, [])
+            STATE["queries"].append(b["query"])
+            if "from public.docs group by collection" in b["query"]:
+                return self._send(201, [{"collection": "clients", "n": 7}, {"collection": "mplans", "n": 12}])
+            if "from public.profiles group by" in b["query"]:
+                return self._send(201, [{"role": "admin", "status": "active", "n": 1}, {"role": "viewer", "status": "requested", "n": 1}])
+            return self._send(201, [])
         self._send(404, {"message": "nf"})
 
     def do_PATCH(self):
@@ -110,6 +115,9 @@ STATE["reject_double_backslash"] = False
 n = len(STATE["patches"])
 r, out, _ = run("finalize", "https://hub.example.com/")
 ok(r.returncode == 0 and STATE["auth"]["site_url"] == "https://hub.example.com/" and "password_min_length" not in STATE["patches"][-1] and len(STATE["patches"]) == n + 1, "finalize only moves the site url and allow list")
+
+r, out, _ = run("inspect", SITE)
+ok(r.returncode == 0 and "docs: 19 records in 2 collections" in r.stdout and "1 admin/active" in r.stdout and "docs_total=19" in out, "inspect reports counts per collection and profiles without contents")
 
 r, out, _ = run("setup", SITE, {"SUPABASE_ACCESS_TOKEN": "wrong"})
 ok(r.returncode != 0 and "HTTP 401" in (r.stdout + r.stderr), "a bad token fails with the server's status")

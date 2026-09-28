@@ -164,13 +164,39 @@ def emit(**kv):
             f.write("### Supabase\n\n" + "\n".join(f"- **{k}**: `{v}`" for k, v in kv.items() if k != "anon_key") + "\n")
 
 
+def inspect():
+    """Counts only, never contents or addresses: what the hosted database holds right now."""
+    p = find_project()
+    if not p:
+        raise SystemExit(f"project '{NAME}' not found")
+    _, docs = call("POST", f"/v1/projects/{p['ref']}/database/query",
+                   {"query": "select collection, count(*)::int as n from public.docs group by collection order by collection", "read_only": True})
+    _, prof = call("POST", f"/v1/projects/{p['ref']}/database/query",
+                   {"query": "select role, status, count(*)::int as n from public.profiles group by role, status order by role, status", "read_only": True})
+    docs = docs or []; prof = prof or []
+    total = sum(int(r.get("n") or 0) for r in docs)
+    lines = [f"project {p['ref']} · status {p.get('status')}", f"profiles: " + (", ".join(f"{r.get('n')} {r.get('role')}/{r.get('status')}" for r in prof) or "none"),
+             f"docs: {total} records in {len(docs)} collections"] + [f"  {r.get('collection')}: {r.get('n')}" for r in docs]
+    print("\n".join(lines))
+    summ = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summ:
+        with open(summ, "a", encoding="utf-8") as f:
+            f.write("### Hosted database\n\n" + "\n".join("- " + l.strip() for l in lines) + "\n")
+    emit(ref=p["ref"], docs_total=str(total), collections=str(len(docs)), profiles=str(sum(int(r.get("n") or 0) for r in prof)))
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["setup", "finalize"])
-    ap.add_argument("--site-url", required=True, help="the page URL, e.g. https://owner.github.io/repo/")
+    ap.add_argument("mode", choices=["setup", "finalize", "inspect"])
+    ap.add_argument("--site-url", help="the page URL, e.g. https://owner.github.io/repo/ (setup and finalize)")
     a = ap.parse_args()
     if not TOKEN:
         raise SystemExit("SUPABASE_ACCESS_TOKEN is not set")
+    if a.mode in ("setup", "finalize") and not a.site_url:
+        raise SystemExit("--site-url is required for " + a.mode)
+    if a.mode == "inspect":
+        inspect()
+        return
     if a.mode == "setup":
         p = ensure_project()
         p = wait_healthy(p["ref"])
