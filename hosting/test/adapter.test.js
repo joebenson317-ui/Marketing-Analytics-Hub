@@ -41,8 +41,8 @@ const mkProfile = (id, email, name, role, status, extra = {}) => ({id, email, na
     assert(/Test Co/.test(d.querySelector("#hub-auth").textContent), "account name shown");
     d.querySelector('#hub-auth [data-v="register"]').click(); await tick();
     assert(d.querySelector("#hub-auth h1").textContent === "Create your account", "register screen");
-    d.querySelector("#a_pw").value = "abc"; d.querySelector("#a_pw").dispatchEvent(new w.Event("input")); assert(d.querySelectorAll("#a_pol li.y").length === 0, "weak password: 0 of 3 checks");
-    d.querySelector("#a_pw").value = "Longer-passw0rd!"; d.querySelector("#a_pw").dispatchEvent(new w.Event("input")); assert(d.querySelectorAll("#a_pol li.y").length === 3, "compliant password: 3 of 3 checks");
+    d.querySelector("#a_pw").value = "abc"; d.querySelector("#a_pw").dispatchEvent(new w.Event("input")); assert(d.querySelectorAll("#a_pol li.y").length === 0, "weak password: 0 of 4 checks");
+    d.querySelector("#a_pw").value = "Longer-passw0rd!"; d.querySelector("#a_pw").dispatchEvent(new w.Event("input")); assert(d.querySelectorAll("#a_pol li.y").length === 4, "compliant password: 4 of 4 checks");
     d.querySelector("#a_name").value = ""; d.querySelector("#a_go").click(); await tick(); assert(/Enter your name/.test(d.querySelector("#hub-auth .err")?.textContent || ""), "register requires a name");
     d.querySelector('#hub-auth [data-v="signin"]').click(); await tick();
     d.querySelector("#a_email").value = "joe@example.com"; d.querySelector("#a_pw").value = "wrong"; d.querySelector("#a_go").click(); await tick(); await tick();

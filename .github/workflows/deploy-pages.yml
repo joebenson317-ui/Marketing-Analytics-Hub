@@ -1,10 +1,14 @@
 name: Deploy Analytics Hub to GitHub Pages
 
-# Builds hosting/dist (the unchanged Hub page + Supabase adapter) and publishes it with GitHub Pages,
-# then opens the live page in a browser to confirm the sign-in screen renders and Supabase answers.
-# Needs two repository variables (Settings > Secrets and variables > Actions > Variables):
-#   SUPABASE_URL, SUPABASE_ANON_KEY   (optional: ACCOUNT_NAME)
-# and Pages enabled with source "GitHub Actions" (Settings > Pages).
+# Builds hosting/dist (the unchanged Hub page + Supabase adapter), publishes it with GitHub Pages, then opens the
+# live page in a browser to confirm the sign-in screen renders and Supabase answers.
+#
+# Two ways to supply the Supabase project:
+#   A. Repository secret SUPABASE_ACCESS_TOKEN (Supabase personal access token): the workflow finds or creates the
+#      project, runs hosting/schema.sql, sets the password policy and redirect URLs, and reads the anon key itself.
+#      Optional repository variables: SUPABASE_PROJECT_NAME, SUPABASE_ORG_SLUG, SUPABASE_REGION, CONFIRM_EMAIL.
+#   B. Repository variables SUPABASE_URL and SUPABASE_ANON_KEY when the project was set up by hand.
+# Pages must be enabled with source "GitHub Actions" (Settings > Pages).
 
 on:
   push:
@@ -21,19 +25,42 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+  SUPABASE_PROJECT_NAME: ${{ vars.SUPABASE_PROJECT_NAME }}
+  SUPABASE_ORG_SLUG: ${{ vars.SUPABASE_ORG_SLUG }}
+  SUPABASE_REGION: ${{ vars.SUPABASE_REGION }}
+  CONFIRM_EMAIL: ${{ vars.CONFIRM_EMAIL }}
+  SMTP_HOST: ${{ secrets.SMTP_HOST }}
+  SMTP_PORT: ${{ secrets.SMTP_PORT }}
+  SMTP_USER: ${{ secrets.SMTP_USER }}
+  SMTP_PASS: ${{ secrets.SMTP_PASS }}
+  SMTP_SENDER_NAME: ${{ vars.SMTP_SENDER_NAME }}
+  SMTP_ADMIN_EMAIL: ${{ vars.SMTP_ADMIN_EMAIL }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Expected page URL
+        id: site
+        run: |
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          repo="${GITHUB_REPOSITORY#*/}"
+          echo "url=https://${owner}.github.io/${repo}/" >> "$GITHUB_OUTPUT"
+      - name: Set up the Supabase project (schema, password policy, keys)
+        id: sb
+        if: ${{ env.SUPABASE_ACCESS_TOKEN != '' }}
+        run: python3 hosting/supabase_setup.py setup --site-url "${{ steps.site.outputs.url }}"
       - name: Build hosting/dist
         env:
-          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_URL: ${{ steps.sb.outputs.url || vars.SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ steps.sb.outputs.anon_key || vars.SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
           ACCOUNT_NAME: ${{ vars.ACCOUNT_NAME }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "::error::Set the repository variables SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions > Variables, then re-run."
+            echo "::error::No Supabase project: add the repository secret SUPABASE_ACCESS_TOKEN (Settings > Secrets and variables > Actions > Secrets) or the variables SUPABASE_URL and SUPABASE_ANON_KEY, then re-run."
             exit 1
           fi
           python3 hosting/build.py
@@ -59,6 +86,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Point Supabase Site URL at the deployed page
+        if: ${{ env.SUPABASE_ACCESS_TOKEN != '' }}
+        run: python3 hosting/supabase_setup.py finalize --site-url "${{ needs.deploy.outputs.page_url }}"
       - uses: actions/setup-node@v4
         with:
           node-version: 20
