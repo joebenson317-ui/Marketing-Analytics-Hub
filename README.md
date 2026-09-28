@@ -3,7 +3,7 @@
 Source of record for the **Analytics Hub** — a single-file web app published as a private page on claude.ai:
 
 - Live page: https://claude.ai/artifact/ECztkmmQ4uMFYTynvtTqWD
-- Start here in a new session: [`HANDOFF.md`](HANDOFF.md)
+- Start here in a new session: [`HANDOFF.md`](HANDOFF.md) (mechanics) and [`docs/HANDOFF-CONTEXT.md`](docs/HANDOFF-CONTEXT.md) (decisions, schematics, conventions)
 - App source: [`app/analytics-hub.html`](app/analytics-hub.html) (one HTML file; data lives in the page's own database, not in this repo)
 
 ## What is in here
