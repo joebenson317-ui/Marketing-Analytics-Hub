@@ -8,11 +8,10 @@ name: Deploy Analytics Hub to GitHub Pages
 #      project, runs hosting/schema.sql, sets the password policy and redirect URLs, and reads the anon key itself.
 #      Optional repository variables: SUPABASE_PROJECT_NAME, SUPABASE_ORG_SLUG, SUPABASE_REGION, CONFIRM_EMAIL.
 #   B. Repository variables SUPABASE_URL and SUPABASE_ANON_KEY when the project was set up by hand.
-# Pages must be enabled with source "GitHub Actions" (Settings > Pages).
+# Pages must be enabled with source "GitHub Actions" (Settings > Pages). Deploys run from the default branch.
 
 on:
   push:
-    branches: [main]
     paths: ["app/**", "hosting/**", ".github/workflows/deploy-pages.yml"]
   workflow_dispatch:
 
@@ -54,9 +53,9 @@ jobs:
         if: ${{ env.SUPABASE_ACCESS_TOKEN != '' }}
         run: python3 hosting/supabase_setup.py setup --site-url "${{ steps.site.outputs.url }}"
       - name: Pre-flight summary
-        if: ${{ github.ref != 'refs/heads/main' }}
+        if: ${{ github.ref_name != github.event.repository.default_branch }}
         run: |
-          echo "Pre-flight run on ${GITHUB_REF_NAME} - Supabase setup and build only; merge into main to deploy." >> "$GITHUB_STEP_SUMMARY"
+          echo "Pre-flight run on ${GITHUB_REF_NAME} - Supabase setup and build only; the default branch deploys." >> "$GITHUB_STEP_SUMMARY"
       - name: Build hosting/dist
         env:
           SUPABASE_URL: ${{ steps.sb.outputs.url || vars.SUPABASE_URL || secrets.SUPABASE_URL }}
@@ -74,9 +73,10 @@ jobs:
           path: hosting/dist
 
   deploy:
-    # Pages only deploys from main; a run on another branch stops after the build as a pre-flight of the Supabase setup.
+    # The github-pages environment only accepts deploys from the repository's default branch; a run on any other
+    # branch stops after the build as a pre-flight of the Supabase setup.
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -89,7 +89,7 @@ jobs:
 
   verify:
     needs: deploy
-    if: github.ref == 'refs/heads/main'
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
