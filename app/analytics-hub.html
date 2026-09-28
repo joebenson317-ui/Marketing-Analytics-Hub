@@ -315,6 +315,88 @@ th .qi{margin-left:4px}
 .card .sec-h:not(:first-child){margin-top:10px}
 .formfoot{display:flex;justify-content:flex-end;gap:10px;padding-top:12px;border-top:1px solid var(--border);margin-top:8px}
 @media(max-width:800px){.kv{grid-template-columns:1fr}#acct{right:8px;left:8px;width:auto}}
+/* ===== density v2: Datorama-level breathing room and chrome/content contrast ===== */
+:root{--canvas:#211C19;--surface:#2A2421;--surface-2:#332C28;--ink:#F7F1EA;--ink-2:#D9CDC1;--ink-3:#A0938A;--border:#3E3631;--border-2:#4B423C;--top:#0B0908;--rail:#141110;--rail-ink:#C9BCB0;--accent-soft:rgba(226,143,85,.18);--radius:12px;--shadow:0 1px 2px rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.35)}
+:root[data-theme=light]{--canvas:#F3F0EC;--surface:#FFFFFF;--surface-2:#F8F5F1;--ink:#1D1814;--ink-2:#4E453F;--ink-3:#7E736B;--border:#E3DCD5;--border-2:#D2C9C0;--top:#141110;--rail:#1E1916;--rail-ink:#CFC3B7;--accent-soft:rgba(201,112,47,.12)}
+:root[data-theme=light] .rail{background:var(--rail);color:var(--rail-ink);border-right-color:#2B2521}
+:root[data-theme=light] .rail a{color:var(--rail-ink)}
+:root[data-theme=light] .rail a:hover,:root[data-theme=light] .rail a.active{background:rgba(255,255,255,.08);color:#fff}
+:root[data-theme=light] .rail .grp,:root[data-theme=light] .rail .hint,:root[data-theme=light] .rail .sub a{color:#8F8378}
+:root[data-theme=light] .rail .sub a.active{color:var(--accent-2)}
+:root[data-theme=light] .rail .lobp{background:rgba(255,255,255,.06);border-color:#2B2521}
+:root[data-theme=light] .rail .lobp label{color:#8F8378}
+:root[data-theme=light] .rail .lobp select{background:#2A2421;color:#F3ECE4;border-color:#3E3631}
+body{font-size:14px;line-height:1.5}
+.top{height:60px;padding:0 22px 0 20px;border-bottom-color:#1C1715}
+.top .gtabs{height:60px}
+.top .gtabs a{font-size:14.5px;padding:0 18px}
+.top .wsp select{height:38px;font-size:14px}
+.app{grid-template-columns:284px 1fr}
+.rail{top:60px;height:calc(100vh - 60px);padding:18px 16px 24px;border-right:1px solid #1C1715}
+.rail a{padding:12px 14px;font-size:14.5px;border-radius:10px;gap:12px}
+.rail a .ic svg{width:18px;height:18px}
+.rail a.active:before{left:-16px;top:10px;bottom:10px}
+.rail .grp{padding:24px 14px 10px;font-size:11px}
+.rail .lobp{margin:12px 0 6px;padding:12px 14px 14px}
+.rail .lobp select{height:38px;font-size:13.5px}
+.rail .sub{margin:2px 0 6px 24px}
+.rail .sub a{padding:9px 12px 9px 20px;font-size:13.5px}
+.rail .hint{font-size:11.5px;padding:14px}
+main{padding:36px 44px 72px;gap:26px}
+main > .crumb{margin-bottom:-8px;font-size:12.5px}
+main > .topbar{padding-bottom:10px;gap:12px}
+main > .topbar h1{font-size:31px;font-weight:600;letter-spacing:-.02em}
+h2{font-size:20px;font-weight:600;letter-spacing:-.015em}
+.card{padding:26px 28px;gap:16px;border-radius:12px}
+.card > .topbar{gap:12px;padding-bottom:4px}
+.card > .topbar > b,.card > b{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.grid{gap:22px}
+.kpis{gap:18px}
+.kpi{padding:22px 24px 18px;min-height:122px;gap:8px}
+.kpi .v{font-size:30px}
+.kpi .l{font-size:13px}
+.kpi .d{font-size:12.5px}
+table{font-size:14px}
+th{padding:14px 14px;font-size:11.5px;letter-spacing:.07em}
+td{padding:14px 14px;font-size:14px;line-height:1.45}
+table:has(td>.inp.xs) td{padding:8px 10px}
+.lab{font-size:13px;line-height:1.5}
+.pill{font-size:11.5px;padding:3px 9px}
+.tag{font-size:12px;padding:3px 9px}
+.inp,select.inp{height:38px;line-height:36px;font-size:14px;padding:0 12px}
+.inp.sm{height:33px;line-height:31px;font-size:13px}
+.inp.xs{height:28px;line-height:26px;font-size:12.5px}
+.btn{height:36px;padding:0 16px;font-size:14px;border-radius:9px}
+.btn.sm{height:30px;font-size:13px;padding:0 12px}
+.btn.xs{height:26px;font-size:12px;padding:0 9px}
+.seg>button{height:30px;font-size:13.5px;padding:0 13px}
+.fld>label,label.lab:has(>.inp),label.lab:has(>select){font-size:11px}
+.form{gap:16px 18px}
+details.help{padding:14px 20px}
+details.help summary{font-size:13.5px}
+.find{padding:12px 16px;font-size:13.5px}
+.qcard{padding:20px 22px;gap:14px}
+.qcard .qask{font-size:15px}
+.dropzone{padding:22px 24px;gap:16px}
+.dropzone b{font-size:15px}
+.stepper{padding:14px 20px}
+.stepper .stp{font-size:14px}
+.optcard{padding:20px}
+.optcard .t{font-size:15px}
+.tier{padding:14px 16px}
+.tier .s{font-size:18px}
+.banner{padding:18px 20px}
+.banner .st{font-size:17px}
+.vnode{min-width:190px;padding:14px 16px}
+.listhead{margin:6px 0 12px}
+.pager{padding:14px 0 0;font-size:13px}
+.kv{gap:18px 22px}
+.kv>label{font-size:14px}
+.sec-h{font-size:14.5px;padding:6px 0 12px;margin-bottom:18px}
+#drawer .dh{padding:22px 24px 18px}#drawer .db{padding:22px 24px;gap:18px}#drawer .df{padding:16px 24px}
+.md{font-size:14.5px;line-height:1.65}
+@media(max-width:1200px){.app{grid-template-columns:248px 1fr}main{padding:28px 30px 56px}}
+@media(max-width:800px){main{padding:18px 16px 40px}.rail a{padding:9px 12px;font-size:13.5px}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head><body>
 <header class="top" id="top"></header><div class="app"><nav class="rail" aria-label="Main"><div id="nav"></div><div class="hint">⌘K to jump · data lives in this page's database · no telemetry</div></nav>
 <main><div id="gearbar" hidden></div><div id="wsbar" hidden></div><div id="ro">You can view but not save: sign in as a contributor or editor of this page to make changes.</div><div id="main"></div></main></div><div id="toast" role="status"></div>
@@ -1746,7 +1828,7 @@ function topHtml(r) { const m = ME(); const g = GROUP_OF(r) || V.navGroup || "Pl
   return `<div class="brand"><span class="logo"></span>Analytics Hub</div><div class="wsp"><select id="client_pick" title="Client — filters every page"><option value="">All clients</option>${clientNames().map(n => `<option value="${esc(n)}" ${cn === n ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div><nav class="gtabs" aria-label="Areas">${NAV_GROUPS.map(([gn, items]) => `<a href="#${lastPage(gn) || items[0][1]}" data-group="${gn}" class="${g === gn ? "active" : ""}">${gn}</a>`).join("")}<a href="#clients" data-group="Clients" class="${["clients", "settings"].includes(r) ? "active" : ""}">Clients</a></nav><div class="search"><span class="sic">${ICON("search")}</span><input id="srch" placeholder="Search plans, publishers, reports, defaults, help…  ⌘K" autocomplete="off"><div class="res" id="srch_res"></div></div><a class="ico" id="theme_btn" title="Switch light / dark" data-a="theme">${document.documentElement.dataset.theme === "light" ? ICON("moon") : ICON("sun")}</a><a href="#playbook" class="ico ${r === "playbook" ? "active" : ""}" title="Playbook — how to use the Hub">${ICON("help")}</a><a href="#settings" class="ico ${r === "settings" ? "active" : ""}" title="Settings — clients, users, publishers, benchmarks, rates, templates, library">${ICON("settings")}</a><div class="me" title="Account"><span class="av">${esc(initials)}</span><span>${m ? esc(m.name || m.email) + " · " + esc(m.role || "viewer") : USER?.name ? esc(USER.name) : ""}</span><span class="car" style="width:6px;height:6px;border-right:1.5px solid #B8A99C;border-bottom:1.5px solid #B8A99C;transform:rotate(45deg);margin-left:4px"></span></div>${acctMenuHtml()}`; }
 function lobPickerHtml() { const cn = currentClient(); const ws = cn ? wsOfClient(cn) : allowedWs(); const cmp = cn && compareEnabled(cn); const groups = {}; if (!cn) ws.forEach(c => (groups[clientNameOf(c)] ||= []).push(c)); return `<div class="lobp"><label>${cn ? "Line of business" : "Workspace"}</label><div class="wsp"><select id="ws_pick" title="Line of business — filters every page">${cn ? `${cmp ? `<option value="" ${!V.ws ? "selected" : ""}>All LOBs · combined</option>` : ""}${ws.map(c => `<option value="${c.id}" ${V.ws === c.id ? "selected" : ""}>${esc(c.lob || c.name)}</option>`).join("")}` : `<option value="" ${!V.ws ? "selected" : ""}>All workspaces</option>${Object.entries(groups).sort().map(([k, arr]) => `<optgroup label="${esc(k)}">${arr.map(c => `<option value="${c.id}" ${V.ws === c.id ? "selected" : ""}>${esc(c.lob || c.name)}</option>`).join("")}</optgroup>`).join("")}`}</select></div>${cn && !cmp && wsOfClient(cn).length > 1 ? `<span class="lab" style="font-size:10.5px">Compare LOBs side by side: switch it on per workspace in Settings → Clients &amp; workspaces</span>` : ""}</div>`; }
 function navHtml(r) { const g = GROUP_OF(r) || V.navGroup || "Plan"; V.navGroup = g; (V.groupPage ||= {})[g] = r; const cn = currentClient(); const cmp = cn && compareEnabled(cn); const sections = g === "Clients" || g === "Settings" ? [["Clients", [["Clients", "clients", "", "Client workspaces, consent levels and closeouts"], ["Settings", "settings", "", "Users, publishers, benchmarks, rates, templates, library"]]]] : NAV_GROUPS.filter(([gn]) => gn === g); const item = ([n, k, ic, tip]) => `<a href="#${k}" class="${r === k ? "active" : ""}" data-nav="${k}" data-tip="${esc(tip || "")}"><span class="ic">${ICON(k)}</span><span>${n}</span>${k === "datorama" ? datBadge() : ""}<span class="car"></span></a><div class="sub" data-sub="${k}"></div>`;
-  return `<a href="#home" class="home ${r === "home" ? "active" : ""}" data-tip="Your dashboard — customise its widgets from Home → Customize"><span class="ic">${ICON("home")}</span><span>Home</span></a>${lobPickerHtml()}` + sections.map(([gn, items]) => `<div class="grp"><span>${gn}</span>${gn === "Plan" ? `<a href="#plans" title="Add a media plan">${ICON("plus")}</a>` : ""}</div>${items.map(item).join("")}${gn === "Plan" && cmp ? item(["Lines of business", "lobs", "", "Every LOB of this client side by side, and the account together"]) : ""}`).join("") + `<div class="hint">⌘K to jump · ${NAV_GROUPS.length + 1} areas in the top bar · this sidebar shows the area you are in</div>`; }
+  return `<a href="#home" class="home ${r === "home" ? "active" : ""}" data-tip="Your dashboard — customise its widgets from Home → Customize"><span class="ic">${ICON("home")}</span><span>Home</span></a>${lobPickerHtml()}` + sections.map(([gn, items]) => `<div class="grp"><span>${gn}</span>${gn === "Plan" ? `<a href="#plans" title="Add a media plan">${ICON("plus")}</a>` : ""}</div>${items.map(item).join("")}${gn === "Plan" && cmp ? item(["Lines of business", "lobs", "", "Every LOB of this client side by side, and the account together"]) : ""}`).join("") + ""; }
 function syncSubnav(r) { const main = $("#main"); const nav = $("#nav"); if (!main || !nav) return; const strip = main.querySelector(":scope > .tabs"); const host = nav.querySelector(`.sub[data-sub="${r}"]`); if (!strip || !host) return; const btns = [...strip.children]; if (btns.length < 2) return; host.innerHTML = btns.map((b, i) => `<a data-subclick="${i}" class="${b.classList.contains("ghost") ? "" : "active"}">${b.innerHTML}</a>`).join(""); host.classList.add("open"); strip.classList.add("mirrored"); }
 document.addEventListener("click", e => { const a = e.target.closest("[data-subclick]"); if (!a) return; e.preventDefault(); const strip = $("#main > .tabs"); const b = strip?.children[+a.dataset.subclick]; if (b) b.click(); });
 document.addEventListener("change", e => { const t = e.target; if (t.id === "client_pick") { V.client = t.value; const ws = t.value ? wsOfClient(t.value) : []; pickWorkspace(ws.length && !compareEnabled(t.value) ? ws[0].id : ""); render(); } });
