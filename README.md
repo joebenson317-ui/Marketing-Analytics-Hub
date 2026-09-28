@@ -59,3 +59,5 @@ node --check <(sed -n '/<script>/,/<\/script><\/body>/p' app/analytics-hub.html 
 ```
 
 Storage caveats worth knowing before changing the data model: records already in the page's database keep their shape, so field renames need a migration path; the database is per-artifact, so publishing to a new URL starts empty.
+
+- **Section widgets.** Each area's dashboard picker leads with widgets built for that stage of the process: Plan (campaign stage tracker, plan pipeline, flight notices, rate outliers, audience coverage, version timeline, plan hygiene, budget split), Measure (campaign scoreboard, pacing gauges, spend burn, delivery anomalies, variance breakout, QA history, reports due, freshness matrix), Deliver (deliverables tracker, headline KPIs, report calendar, closeout progress, recent exports, landscape snapshot) and Team (my tasks, priority matrix, capacity grid, week ahead, needs-a-decision box, decisions log, handoffs). Every widget respects the client and LOB pickers, and the general widgets stay available under the suggested ones.
