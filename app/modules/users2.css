@@ -1,0 +1,10 @@
+
+/* ===== create user: wide drawer, horizontal form ===== */
+#drawer.wide{width:min(1040px,calc(100vw - 40px))}
+.nuform{display:grid;gap:16px;min-width:0}
+.nuform .row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 14px;align-items:start}
+.nuform .row2{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,2fr);gap:12px 14px;align-items:start}
+.nuform .fld .inp{width:100%;box-sizing:border-box}
+.nulobs{display:flex;flex-wrap:wrap;gap:8px 16px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);min-height:40px;align-items:center;font-size:13px}
+.nuform textarea{width:100%;box-sizing:border-box;font-size:12px;line-height:1.45;resize:vertical}
+@media (max-width:1100px){.nuform .row4{grid-template-columns:repeat(2,minmax(0,1fr))}.nuform .row2{grid-template-columns:1fr}}

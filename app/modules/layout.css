@@ -1,0 +1,29 @@
+
+/* ===== top bar: text brand, full-height filled area tabs with section icons ===== */
+.top .brand .logo{display:none}
+.top .gtabs{align-self:stretch;height:auto;align-items:stretch;gap:0;margin-left:10px}
+.top .gtabs a{height:auto;border-radius:0;border-bottom:0;padding:0 18px;gap:9px;transition:background .15s,color .15s}
+.top .gtabs a:before{display:none}
+.top .gtabs a svg{width:16px;height:16px;flex:0 0 auto;opacity:.85}
+.top .gtabs a:hover{background:rgba(255,255,255,.06);color:#fff}
+.top .gtabs a.active{background:var(--tab,var(--accent));color:#14110F;font-weight:600}
+.top .gtabs a.active svg{opacity:1}
+.optcard.pick .t{font-size:14px;line-height:1.3}
+.optcard.pick .d{font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+.optcard.pick .f{color:var(--ink-3);font-family:inherit;font-size:11px;letter-spacing:.04em;text-transform:uppercase;margin-top:auto;padding-top:4px}
+/* ===== dashboard layout engine: free grid, drag, resize ===== */
+.grid.dash.free{display:block;position:relative;min-height:80px}
+.grid.dash.free .widget{position:absolute;margin:0;display:flex;flex-direction:column;overflow:hidden;transition:left .18s ease,top .18s ease,width .18s ease,height .18s ease,box-shadow .15s}
+.grid.dash.free .widget .wbody{flex:1;min-height:0;overflow:auto}
+.grid.dash.free.editing .wdrag{cursor:grab;user-select:none}
+.grid.dash.free .widget.dragging{transition:none;z-index:6;box-shadow:0 18px 44px rgba(0,0,0,.35);opacity:.94}
+.grid.dash.free .widget.dragging .wdrag{cursor:grabbing}
+.grid.dash.free.live .widget:not(.dragging){pointer-events:none}
+.grip{cursor:grab;color:var(--ink-3);font-size:15px;letter-spacing:-3px;margin-right:8px;line-height:1}
+.wph{position:absolute;border:2px dashed var(--accent);border-radius:var(--radius);background:var(--accent-soft);pointer-events:none;transition:left .15s ease,top .15s ease,width .15s ease,height .15s ease;z-index:1}
+.rz{position:absolute;touch-action:none;z-index:2}
+.rz.e{top:14px;bottom:14px;right:-5px;width:12px;cursor:ew-resize}
+.rz.s{left:14px;right:14px;bottom:-5px;height:12px;cursor:ns-resize}
+.rz.se{right:2px;bottom:2px;width:16px;height:16px;cursor:nwse-resize;border-right:2.5px solid var(--accent);border-bottom:2.5px solid var(--accent);border-radius:0 0 5px 0;opacity:.7}
+.rz.se:hover,.rz.e:hover,.rz.s:hover{opacity:1;background:var(--accent-soft)}
+.grid.dash.free.editing .widget{outline:1.5px dashed var(--border-2);outline-offset:3px}

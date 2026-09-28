@@ -1,0 +1,14 @@
+const {JSDOM, VirtualConsole} = require("jsdom"); const fs = require("fs");
+const html = fs.readFileSync(__dirname + "/../analytics-hub.html", "utf8").replace(/<script src="https:[^"]+"><\/script>/, "").replace(/<link[^>]+fonts[^>]*>/g, "");
+const vc = new VirtualConsole(); const d = new JSDOM(html, {runScripts: "dangerously", url: "https://x.test/#home", virtualConsole: vc, beforeParse(w) { w.XLSX = require("xlsx"); }}); const w = d.window;
+w.eval(`DB={doc:()=>({set:async()=>{}})};USER={id:"u1",name:"Joe",owner:true};window.claude={use:async()=>null};`);
+w.__D = JSON.parse(fs.readFileSync(__dirname + "/seed.json", "utf8"));
+w.eval(`for(const k in window.__D){if(!S[k])S[k]=[];S[k].push(...window.__D[k]);} $("#ro").style.display="none"; render();`);
+const $ = s => w.document.querySelector(s); const $$ = s => [...w.document.querySelectorAll(s)]; const out = {};
+$(`[data-ap="toggle"]`).click(); out.open = {panel: !$("#appanel").hidden, clients: $$(`#appanel [data-ap="client"]`).length, nativeSelects: $$("#client_pick,#ws_pick").length};
+$$(`#appanel [data-ap="client"]`).find(a => a.dataset.v === "Cboe").click(); out.cboe = {client: w.eval("V.client"), lobs: $$(`#appanel [data-ap="ws"]`).map(a => a.textContent.trim())};
+$$(`#appanel [data-ap="ws"]`)[1].click(); out.pick = {ws: w.eval(`byId("clients", V.ws)?.lob`), closed: $("#appanel").hidden, sidebar: $$(".lobp2 .lobi").map(a => a.textContent.trim()), button: $(".apbtn").textContent.trim()};
+$(`[data-ap="toggle"]`).click(); const q = $("#ap_q"); q.value = "gold"; q.dispatchEvent(new w.Event("input", {bubbles: true})); out.search = $$(`#appanel [data-ap="client"]`).map(a => a.dataset.v);
+$$(`#appanel [data-ap="client"]`).find(a => a.dataset.v === "").click(); out.all = {sidebar: $$(".lobp2 .lobi").map(a => a.textContent.trim()), ws: w.eval("V.ws"), client: w.eval("V.client")};
+console.log(JSON.stringify(out, null, 1));
+process.exit(0);

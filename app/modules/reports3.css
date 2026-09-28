@@ -1,0 +1,30 @@
+
+/* ===== active reports: builder, lists, calendar ===== */
+.artabs{margin-bottom:12px;flex-wrap:wrap}
+.arform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 14px;align-items:end}
+.arform .lab input,.arform .lab select{width:100%;box-sizing:border-box}
+.argrid{display:grid;grid-template-columns:1fr;gap:16px}
+.argrid .card{min-width:0}
+.armonth{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px}
+.armonth .ch{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:2px 6px}
+.ard{min-height:84px;border:1px solid var(--border);border-radius:9px;padding:6px 8px;background:var(--surface-2);font-size:12px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.ard.off{border-color:transparent;background:transparent}
+.ard.wknd{opacity:.85}
+.ard.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ard .ah{font-weight:600;color:var(--ink-2)}
+.arweek{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:6px}
+.arweek .ard{min-height:150px}
+.arweek .are{display:flex;gap:6px;align-items:center;min-width:0}
+.archip{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--ink);border:1px solid transparent}
+.archip.monthly{background:var(--surface);border-color:var(--border-2)}
+.archip.daily{background:transparent;border-color:var(--border);color:var(--ink-3)}
+/* ===== QA / Interpret landing ===== */
+.rlcrumb{font-size:12.5px;color:var(--ink-3);margin:2px 0 4px}
+.rlcrumb a{color:var(--accent-2);cursor:pointer;text-decoration:none}
+.rlcrumb a:hover{text-decoration:underline}
+.optcards.rlplat{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.optcard.tpl{border-style:dashed}
+.rlduo{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-bottom:16px}
+.rlduo .card{min-width:0}
+.rlduo .dropzone.hero{min-height:220px;padding:26px 18px}
+.rlduo .dropzone.hero b{font-size:22px}
