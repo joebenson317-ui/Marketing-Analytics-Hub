@@ -53,6 +53,10 @@ jobs:
         id: sb
         if: ${{ env.SUPABASE_ACCESS_TOKEN != '' }}
         run: python3 hosting/supabase_setup.py setup --site-url "${{ steps.site.outputs.url }}"
+      - name: Pre-flight summary
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          echo "Pre-flight run on ${GITHUB_REF_NAME} - Supabase setup and build only; merge into main to deploy." >> "$GITHUB_STEP_SUMMARY"
       - name: Build hosting/dist
         env:
           SUPABASE_URL: ${{ steps.sb.outputs.url || vars.SUPABASE_URL || secrets.SUPABASE_URL }}
@@ -70,7 +74,9 @@ jobs:
           path: hosting/dist
 
   deploy:
+    # Pages only deploys from main; a run on another branch stops after the build as a pre-flight of the Supabase setup.
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -83,6 +89,7 @@ jobs:
 
   verify:
     needs: deploy
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
