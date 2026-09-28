@@ -1,0 +1,74 @@
+name: Deploy Analytics Hub to GitHub Pages
+
+# Builds hosting/dist (the unchanged Hub page + Supabase adapter) and publishes it with GitHub Pages,
+# then opens the live page in a browser to confirm the sign-in screen renders and Supabase answers.
+# Needs two repository variables (Settings > Secrets and variables > Actions > Variables):
+#   SUPABASE_URL, SUPABASE_ANON_KEY   (optional: ACCOUNT_NAME)
+# and Pages enabled with source "GitHub Actions" (Settings > Pages).
+
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", "hosting/**", ".github/workflows/deploy-pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build hosting/dist
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
+          ACCOUNT_NAME: ${{ vars.ACCOUNT_NAME }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Set the repository variables SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions > Variables, then re-run."
+            exit 1
+          fi
+          python3 hosting/build.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: hosting/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Open the live page and check the sign-in screen
+        run: node hosting/verify.js "${{ needs.deploy.outputs.page_url }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verify-screenshot
+          path: verify.png
+          if-no-files-found: ignore

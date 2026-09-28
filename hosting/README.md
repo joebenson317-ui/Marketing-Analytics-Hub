@@ -1,69 +1,48 @@
-# Hosting the Analytics Hub on your own domain
+# Hosting the Analytics Hub without Claude
 
-The Hub runs today as a private claude.ai artifact. That gives you sign-in for free (Claude accounts), a database, file downloads and sharing from the page's Share menu, and it costs nothing to run. It also means two things you asked for cannot be done there:
-
-| Ask | On claude.ai | Self-hosted |
-|---|---|---|
-| A link anyone can open, gated by "create an account" | Anyone you **share the link with** (Share menu, *can edit*) and who has a Claude account. A public link cannot write to the database. | Yes: any visitor can register at your domain. |
-| Your own password rules (10+ characters, letters + numbers, one special, rotate every 180 days) | No. Passwords belong to the Claude account; Anthropic sets those rules. | Yes: the identity provider enforces them (settings below). |
-| Admin resets a user's password | "Reset sign-in" in Settings → Users clears the account link and mints a new invite link. | Yes: the provider sends the reset email. |
-| Every action logged and filterable by profile | Yes, today (Settings → Activity log). | Yes, same code. |
-
-Everything below is what a self-hosted build needs. Nothing here is set up yet; it is the runbook and the pieces that do not depend on your accounts.
+The Hub also runs as a private claude.ai artifact, which needs a Claude account and a share. This folder is the
+other way to run it: the same page on a public URL, gated by **Create an account**, backed by Supabase Auth and
+Postgres, deployed by GitHub Actions to GitHub Pages. Nobody needs a Claude account.
 
 ## What is in this folder
 
 | File | What it does |
 |---|---|
-| `adapter.js` | Replaces the claude.ai runtime (`window.claude.use`) with Supabase Auth + Postgres. Draws the sign-in, create-account, forgot-password and set-new-password screens, enforces the password policy on the client (the provider enforces it again on the server), forces a new password when the last change is older than 180 days, and hands the unchanged page a `db` and `user` namespace. |
-| `schema.sql` | Tables (`profiles`, `docs`, `audit`), the sign-up trigger that creates a profile row, the trigger that stamps `password_changed_at` on every password change, and row-level security (active profiles read and write; only admins change other profiles or delete). |
-| `build.py` | Writes `dist/index.html`: the Hub page from `app/analytics-hub.html` with the adapter and your `config.js` loaded first. |
-| `config.example.js` | Copy to `config.js` and fill in the Supabase URL and anon key (both are safe to ship to the browser; row-level security does the protecting). |
-| `vercel.json`, `netlify.toml` | Build and publish settings for either host. |
+| `adapter.js` | Replaces the claude.ai runtime (`window.claude.use`) with Supabase. Draws the sign-in, create-account, forgot-password and set-new-password screens, checks the password policy in the browser, forces a new password when the last change is older than 180 days, and maps the page's `users` collection onto the `profiles` table and every other collection onto `docs`. |
+| `schema.sql` | Tables `profiles` and `docs`, the sign-up trigger that creates a profile, the trigger that stamps `password_changed_at` on every password change, the rule that makes the **first registered account the admin**, and row-level security. Safe to run more than once. |
+| `vendor/supabase.js` | The browser build of supabase-js, served next to the page so sign-in does not depend on a CDN. |
+| `build.py` | Writes `dist/`: the page from `app/analytics-hub.html` with supabase-js, the config and the adapter loaded first. Reads `SUPABASE_URL` and `SUPABASE_ANON_KEY` from the environment, or from `config.js` for a local build. |
+| `verify.js` | Opens the live page in headless Chromium after each deploy and fails the run if the sign-in screen does not render or Supabase rejects the key. |
+| `../.github/workflows/deploy-pages.yml` | Build, deploy to GitHub Pages, verify. Runs on every push to `main` that touches `app/` or `hosting/`, and on demand. |
+| `test/adapter.test.js` | Runs the adapter in jsdom against an in-memory fake of supabase-js: sign-in, registration, approval, denial, rotation. `npm i jsdom` then `node hosting/test/adapter.test.js`. |
+| `config.example.js`, `vercel.json`, `netlify.toml` | For a local build or for hosting on Vercel or Netlify instead of GitHub Pages. |
 | `adapter.md` | The storage and identity contract the adapter satisfies. |
 
-## Deploy in five steps
+## Go live
 
-1. **Supabase.** Create a project at supabase.com. In the SQL editor paste `schema.sql` and run it. Under Authentication → Providers → Email: keep sign-ups on, set the minimum password length to **10** and required characters to **letters, digits and symbols**, keep email confirmation on. Under Authentication → URL configuration add your domain as the site URL and redirect URL.
-2. **Config.** Copy `config.example.js` to `config.js`; paste the project URL and anon key from Project settings → API.
-3. **Host.** Import the GitHub repo in Vercel or Netlify; both read the manifest in this folder and run `build.py` (set the root directory to `hosting` and add `config.js` there, or set its two values as build-time environment variables and write the file in a pre-build step). Attach your domain in the host's dashboard. If you prefer no build step, run `python3 hosting/build.py` locally and upload `hosting/dist/index.html` to any static host.
-4. **First admin.** Open the domain, create your own account, confirm the email. In the SQL editor: `update profiles set role='admin', status='active' where email='you@…';` This is the only manual step, once.
-5. **Your friend.** Send him the link. He creates an account with a policy-compliant password, sees Waiting for approval, and you approve him in Settings → Users → Access requests whenever you like, assigning admin and client access. He never needs a Claude account, and he never needs to reach you first.
+1. **Supabase project.** Sign up at https://supabase.com and create a project (any name, nearest region, keep the database password). When it is ready:
+   - **SQL Editor**: paste the whole of `schema.sql` and run it. It must finish without errors.
+   - **Authentication → Providers → Email**: keep the provider enabled; set **Minimum password length** to 10 and **Password requirements** to letters, digits and symbols. For the first evening, turn **Confirm email** off so a new account can sign in immediately; turn it back on later if you want address verification.
+   - **Project Settings → API**: copy the **Project URL** and the **anon public** key. Both are meant to be shipped to browsers; row-level security is what protects the data.
+2. **Repository variables.** In the GitHub repo: Settings → Secrets and variables → Actions → **Variables** → New repository variable, twice: `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Optionally `ACCOUNT_NAME` for the name under the logo.
+3. **GitHub Pages.** Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+4. **Deploy.** Merge the branch into `main` (or run the workflow from the Actions tab). The run builds, deploys and verifies; its summary shows the site URL.
+5. **Site URL.** Back in Supabase, Authentication → URL Configuration: set **Site URL** to the site URL from step 4 and add the same URL to **Redirect URLs**. Password-reset emails open this address.
+6. **First account.** Open the site, click Create an account, register. The first account ever created is the admin; every later account starts as viewer with status **requested**.
+7. **Everyone else.** Send the link. A new person registers with a policy-compliant password and sees **Waiting for approval**. You approve them in Settings → Users → Access requests, choosing role, workspaces and capabilities, whenever you like; they do not need to be online or to reach you first.
 
-Password reset: he uses Forgot password on the sign-in screen, or you press Reset sign-in on his profile and the provider emails him the link. Either way the new password must meet the policy and the 180-day clock restarts.
+## How access works on this build
 
-## Notes on the pieces
+- The `profiles` table holds role and status; row-level security reads them. Only active members read and write data; anyone signed in can append to the activity log; nobody edits or deletes activity rows; only admins delete other rows or change other people's role and status.
+- Approving, pausing or declining someone in the page writes their `profiles` row, so the database and the page always agree.
+- **Reset password** on a profile (Settings → Users) sends the Supabase reset email; the new password must meet the policy and the 180-day clock restarts (the trigger in `schema.sql` stamps the change).
+- The password policy is enforced twice: in the browser by the adapter and on the server by the Supabase Auth settings in step 1. Both are needed; the browser check alone can be bypassed.
 
-- **Static hosting** for `app/analytics-hub.html`: Vercel, Netlify or Cloudflare Pages. Point your domain at it. All three give HTTPS and a custom domain on the free tier.
-- **Identity + database**: Supabase (Postgres + Auth). One project. Free tier is enough for this data volume.
-- **Adapter**: the page talks to storage through one object, `DB`, with `doc(path).set/get/delete` and `collection(name)` queries, and to identity through `USER`. `hosting/adapter.md` lists the exact calls a Supabase adapter must satisfy so the rest of the page stays untouched.
+## What to know
 
-## 2. Identity provider settings (Supabase Auth)
-
-Dashboard → Authentication → Providers → Email:
-
-- Enable email + password. Disable "Allow new users to sign up" **only if** you want invite-only; you asked for open self-registration, so leave it on.
-- Password: minimum length **10**; required characters **lowercase, uppercase, digits, symbols** (Supabase: "Letters, digits and symbols"). This is the 10 / letters + numbers / one special rule.
-- Confirm email: on. Rate limits: defaults.
-
-Rotation every 180 days is not a provider switch; it is `schema.sql` below: a `password_changed_at` column kept current by an auth hook, and a login check that forces a reset when it is older than 180 days.
-
-## 3. Database
-
-Run `hosting/schema.sql` in the SQL editor. It creates:
-
-- `profiles` (one row per user, mirrors the Hub's `users` collection: role, status, access, `password_changed_at`);
-- `docs` (every other Hub collection as JSONB, keyed by `collection` + `id`, mirroring the artifact database);
-- `audit` (the activity log, append-only);
-- row-level security: signed-in users read shared docs; only profiles with `status = 'active'` write; only admins change other profiles; nobody deletes audit rows.
-
-## 4. Deploy order
-
-1. Create the Supabase project; run the schema; set the Auth options above.
-2. Copy `app/analytics-hub.html` to the hosting project; add the Supabase URL and anon key to the adapter; deploy; attach the domain.
-3. Open the domain, register the first account, then in SQL set that profile's `role = 'admin'` and `status = 'active'` (the only manual step, once).
-4. Send your friend the link. He registers, sees "Waiting for approval", you approve in Settings → Users → Access requests at any time; he does not need to reach you.
-
-## 5. What the Hub already does that carries over unchanged
-
-Access requests and approval, roles, workspace grants, sign-in reset, the security policy screen, and the activity log with the per-profile filter are all page code; they work identically on claude.ai and self-hosted.
+- **The hosted database starts empty.** Client data does not belong in a public repository, so nothing is seeded. Upload plans and workbooks in the hosted Hub, or ask for the export/import feature to move data from the claude.ai copy by file.
+- **The page source is public.** The account gate protects the database. Anyone with the URL can read the page's JavaScript, so keep client secrets out of the page.
+- **Free tier.** Supabase may pause free projects after a period of inactivity; check https://supabase.com/pricing and move to a paid tier if the Hub must stay up unattended.
+- **Email.** Confirmation and reset emails use Supabase's built-in sender, which is rate-limited; configure custom SMTP under Authentication → SMTP settings before inviting many people.
+- **Custom domain.** Settings → Pages → Custom domain, plus a CNAME at your registrar; then update the Site URL in Supabase.
+- **Local build.** Copy `config.example.js` to `config.js`, fill it in, run `python3 hosting/build.py`, and open `hosting/dist/index.html` from any static server. `config.js` and `dist/` are ignored by git.
